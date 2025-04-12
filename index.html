@@ -76,22 +76,27 @@ html, body {
   background-color: rgba(20, 20, 20, 0.95);
   color: white;
   padding: 15px;
-  font-size: 14px;
+  font-size: clamp(14px, 2vw, 16px);
   border-radius: 8px;
   z-index: 10001;
   display: none;
   text-align: left;
   transform: none;
   max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow: hidden;
 }
 
-#eventBoxInner {
-  transform: scale(0.95);
-  transform-origin: center top;
-  width: 100%;
+#eventDescription {
+  white-space: pre-wrap;
+}
+
+#eventImage {
+  display: none;
+  margin-top: 10px;
+  max-width: 100%;
+  height: auto;
+  border: 2px solid white;
+  box-shadow: 0 0 10px black;
 }
 
 #eventTitle {
@@ -434,7 +439,7 @@ Three nights later, ash fell in the Pale Expanse like snow. Every magistrate who
 <script>
   map.setView([1910, 1700], map.getZoom());
 }</script>
-<div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"><strong id="eventTitle"></strong><button onclick="hideEventInfo()" style="background: none; border: none; color: white; font-size: 16px;">✖</button></div><div id="eventBoxInner"><div id="eventDescription"></div><img id="eventImage" style="display:none; margin-top:10px; max-width:100%; border: 2px solid white; box-shadow: 0 0 10px black;"/></div></div>
+<div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"><strong id="eventTitle"></strong><button onclick="hideEventInfo()" style="background: none; border: none; color: white; font-size: 16px;">✖</button></div><div id="eventDescription"></div><img id="eventImage" style="display:none; margin-top:10px; max-width:100%; border: 2px solid white; box-shadow: 0 0 10px black;"/></div>
 <script>
 function showEventInfo(title, description, imageUrl = null) {
   document.getElementById("eventTitle").innerText = title;
