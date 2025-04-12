@@ -27,6 +27,7 @@ html, body {
   height: 100%;
 }
 
+/* Timeline container */
 #timeline {
   position: fixed;
   bottom: 0;
@@ -40,12 +41,12 @@ html, body {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   white-space: nowrap;
   padding: 5px 10px;
+  flex-wrap: wrap;
   gap: 6px;
-  scroll-snap-type: x mandatory;
 }
 
 .timeline-dot {
@@ -61,7 +62,6 @@ html, body {
   cursor: pointer;
   transition: transform 0.2s ease;
   border: 2px solid #aaa;
-  scroll-snap-align: start;
   touch-action: manipulation;
 }
 .timeline-dot:hover {
@@ -69,15 +69,13 @@ html, body {
   transform: scale(1.2);
 }
 
-/* Event info box responsive layout */
+/* Event info box */
 #eventInfoBox {
   position: fixed;
   bottom: 110px;
   left: 1rem;
   right: 1rem;
   max-width: calc(100% - 2rem) !important;
-  max-height: 60vh;
-  overflow-y: auto;
   background-color: rgba(20, 20, 20, 0.95);
   color: white;
   padding: 15px;
@@ -88,6 +86,7 @@ html, body {
   width: auto;
   text-align: left;
   transform: none;
+  max-height: none;
 }
 
 #eventInfoBox img {
@@ -105,7 +104,7 @@ html, body {
   font-size: clamp(1rem, 4vw, 1.2rem);
 }
 
-/* Overlay fix */
+/* Overlay */
 #overlayImage {
   position: fixed;
   top: 0;
@@ -140,23 +139,25 @@ html, body {
   padding: 6px 10px;
 }
 
-/* Responsive fix */
+/* Mobile layout improvements */
 @media (max-width: 768px) {
   #timeline {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 4px;
   }
 
   .timeline-dot {
-    width: 12px;
-    height: 12px;
-    margin: 3px;
+    width: 10px;
+    height: 10px;
+    margin: 2px;
   }
 
   #eventInfoBox {
+    max-height: 60vh;
+    overflow-y: auto;
     font-size: 13px;
     padding: 10px;
-    max-height: 60vh;
   }
 
   #overlayImage button {
