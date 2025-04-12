@@ -48,19 +48,18 @@ html, body {
 }
 
 .timeline-dot {
-  display: flex;
-  flex: wrap;
-  flex-direction: column-reverse;
+  display: inline-block;
+  flex: 0 0 auto;
   width: 16px;
   height: 16px;
+  aspect-ratio: 1 / 1;
   margin: 4px;
-  border-radius: 50%;
+  border-radius: 0; /* <-- Square shape */
   background: white;
   cursor: pointer;
   transition: transform 0.2s ease;
   border: 2px solid #aaa;
   touch-action: manipulation;
-  align-items: flex-start;
 }
 .timeline-dot:hover {
   background: #ff4747;
