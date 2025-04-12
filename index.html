@@ -95,6 +95,15 @@ html, body {
   }
 }
 
+@media (max-width: 768px) {
+  #eventInfoBox {
+    left: 0.5rem;
+    right: 0.5rem;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 #eventDescription {
   white-space: pre-wrap;
 }
@@ -106,6 +115,7 @@ html, body {
   max-height: 25vh;
   width: auto;
   height: auto;
+  object-fit: contain;
   border: 2px solid white;
   box-shadow: 0 0 10px black;
   display: block;
@@ -151,30 +161,6 @@ html, body {
 #mapToggleBtn {
   font-size: 14px;
   padding: 6px 10px;
-}
-
-@media (max-width: 768px) {
-  #timeline {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
-  }
-
-  .timeline-dot {
-    width: 10px;
-    height: 10px;
-    margin: 2px;
-  }
-
-  #eventInfoBox {
-    font-size: 13px;
-    padding: 10px;
-  }
-
-  #overlayImage button {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
 }
 </style>
 </head>
