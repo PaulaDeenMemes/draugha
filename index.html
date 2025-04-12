@@ -19,6 +19,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 #map {
@@ -26,28 +27,35 @@ html, body {
   height: 100%;
 }
 
+/* Timeline styles */
 #timeline {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100vw;
+  max-width: 100%;
   background: #111;
-  overflow-x: auto;
   z-index: 10000;
   display: flex;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
   padding: 5px 10px;
-  flex-wrap: nowrap;
-  scroll-snap-type: x mandatory;
+  gap: 6px;
 }
 
 .timeline-dot {
+  display: inline-block;
+  flex: 0 0 auto;
   width: 16px;
   height: 16px;
   min-width: 16px;
   min-height: 16px;
-  margin: 6px;
+  margin: 4px;
   border-radius: 50%;
   background: white;
   cursor: pointer;
@@ -61,12 +69,13 @@ html, body {
   transform: scale(1.2);
 }
 
+/* Event info box responsive layout */
 #eventInfoBox {
   position: fixed;
   bottom: 110px;
-  left: 5%;
-  right: 5%;
-  width: 90%;
+  left: 1rem;
+  right: 1rem;
+  max-width: calc(100% - 2rem) !important;
   background-color: rgba(20, 20, 20, 0.95);
   color: white;
   padding: 15px;
@@ -74,7 +83,9 @@ html, body {
   border-radius: 8px;
   z-index: 10001;
   display: none;
-  text-align: center;
+  width: auto;
+  text-align: left;
+  transform: none;
 }
 
 #eventInfoBox img {
@@ -86,6 +97,7 @@ html, body {
   box-shadow: 0 0 10px black;
 }
 
+/* Overlay fix */
 #overlayImage {
   position: fixed;
   top: 0;
@@ -115,21 +127,22 @@ html, body {
   z-index: 10001;
 }
 
+/* Button sizing */
+#mapToggleBtn {
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+/* Mobile tweaks */
 @media (max-width: 768px) {
   .timeline-dot {
     width: 14px;
     height: 14px;
-    margin: 4px;
   }
 
   #eventInfoBox {
     font-size: 13px;
     padding: 10px;
-  }
-
-  #mapToggleBtn {
-    font-size: 14px;
-    padding: 6px 10px;
   }
 
   #overlayImage button {
