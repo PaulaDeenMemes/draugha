@@ -94,9 +94,14 @@ html, body {
   display: none;
   margin-top: 10px;
   max-width: 100%;
+  max-height: 25vh;
+  width: auto;
   height: auto;
   border: 2px solid white;
   box-shadow: 0 0 10px black;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #eventTitle {
@@ -320,7 +325,7 @@ addMarker([2795, 1915], icons.thulgaan, 'Varrkund');
     document.getElementById("overlayImage").style.display = "none";
   }
 </script>
-<div id="timeline">
+<div id="timeline" style="position:fixed; bottom:0; left:0; right:0; height:40px; background:#111; overflow-x:auto; z-index:10000; display:flex; justify-content:center; align-items:center; padding:0 10px;">
 <div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The First Era: Stillness Before', `There are whispers of when the wind stood still,
 Of frost-wrapped stars on a breathless hill.
 No voice, no flame, no waking cry,
@@ -439,7 +444,14 @@ Three nights later, ash fell in the Pale Expanse like snow. Every magistrate who
 <script>
   map.setView([1910, 1700], map.getZoom());
 }</script>
-<div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"><strong id="eventTitle"></strong><button onclick="hideEventInfo()" style="background: none; border: none; color: white; font-size: 16px;">✖</button></div><div id="eventDescription"></div><img id="eventImage" style="display:none; margin-top:10px; max-width:100%; border: 2px solid white; box-shadow: 0 0 10px black;"/></div>
+<div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<strong id="eventTitle">Event Title</strong>
+<button onclick="hideEventInfo()" style="background: none; border: none; color: white; font-size: 16px;">✖</button>
+</div>
+<div id="eventDescription" style="margin-top: 8px;">Event description goes here.</div>
+<img id="eventImage" src="" style="display:none; margin-top:10px; max-width:100%; border: 2px solid white; box-shadow: 0 0 10px black;"/>
+</div>
 <script>
 function showEventInfo(title, description, imageUrl = null) {
   document.getElementById("eventTitle").innerText = title;
