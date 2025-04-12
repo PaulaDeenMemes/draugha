@@ -11,138 +11,49 @@
 
 
 <style>
-
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #map { width: 100%; height: 100%; }
-    #overlayImage {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background-color: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-    }
-    #zirkImage {
-      max-width: 90%; max-height: 90%;
-      border: 4px solid white;
-      box-shadow: 0 0 20px black;
-    }
-    #overlayImage button {
-      position: absolute;
-      top: 20px; right: 20px;
-      padding: 10px 15px;
-      font-size: 16px;
-      z-index: 10001;
-    }
-  
-@media (max-width: 768px) {
-  #timeline {
-    height: auto;
-    padding: 5px;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .timeline-dot {
-  touch-action: manipulation;
-    width: 14px;
-    height: 14px;
-    margin: 4px;
-  }
-
-  #eventInfoBox {
-    bottom: 130px;
-    width: 90vw;
-    font-size: 13px;
-    padding: 10px;
-    max-width: none;
-  }
-
-  #eventInfoBox img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  #mapToggleBtn {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  #overlayImage button {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
+* {
+  box-sizing: border-box;
 }
 
-
-
-#timeline::-webkit-scrollbar {
-  height: 6px;
-}
-#timeline::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
-}
-.timeline-event {
-  background: #222;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.timeline-event:hover {
-  background: #444;
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-
-.timeline-dot {
-  touch-action: manipulation;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  margin: 0 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  border: 2px solid #aaa;
-}
-.timeline-dot:hover {
-  background: #ff4747;
-  transform: scale(1.2);
+#map {
+  width: 100%;
+  height: 100%;
 }
 
-
-/* Unified #timeline styles */
 #timeline {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  min-height: 40px;
   background: #111;
   overflow-x: auto;
   z-index: 10000;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 5px 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
 }
 
 .timeline-dot {
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 6px;
   border-radius: 50%;
   background: white;
-  margin: 0 8px;
   cursor: pointer;
   transition: transform 0.2s ease;
   border: 2px solid #aaa;
+  scroll-snap-align: start;
   touch-action: manipulation;
 }
 .timeline-dot:hover {
@@ -150,13 +61,61 @@
   transform: scale(1.2);
 }
 
-/* Responsive mobile optimizations */
-@media (max-width: 768px) {
-  #timeline {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
+#eventInfoBox {
+  position: fixed;
+  bottom: 110px;
+  left: 5%;
+  right: 5%;
+  width: 90%;
+  background-color: rgba(20, 20, 20, 0.95);
+  color: white;
+  padding: 15px;
+  font-size: 14px;
+  border-radius: 8px;
+  z-index: 10001;
+  display: none;
+  text-align: center;
+}
 
+#eventInfoBox img {
+  display: none;
+  margin-top: 10px;
+  max-width: 100%;
+  height: auto;
+  border: 2px solid white;
+  box-shadow: 0 0 10px black;
+}
+
+#overlayImage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+#zirkImage {
+  max-width: 90%;
+  max-height: 90%;
+  border: 4px solid white;
+  box-shadow: 0 0 20px black;
+}
+
+#overlayImage button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  font-size: 16px;
+  z-index: 10001;
+}
+
+@media (max-width: 768px) {
   .timeline-dot {
     width: 14px;
     height: 14px;
@@ -164,16 +123,8 @@
   }
 
   #eventInfoBox {
-    bottom: 130px;
-    width: 90vw;
     font-size: 13px;
     padding: 10px;
-    max-width: none;
-  }
-
-  #eventInfoBox img {
-    max-width: 100%;
-    height: auto;
   }
 
   #mapToggleBtn {
