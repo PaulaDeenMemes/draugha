@@ -66,6 +66,11 @@ html, body {
   touch-action: manipulation;
 }
 
+.timeline-dot.active-dot {
+  background: #ff4747;
+  border-color: #ff4747;
+}
+
 #eventInfoBox {
   position: relative;
   background-color: rgba(20, 20, 20, 0.95);
@@ -437,5 +442,14 @@ function showEventInfo(title, description, imageUrl = null) {
 function hideEventInfo() {
   document.getElementById("eventInfoBox").style.display = "none";
 }
-</script></body>
+</script>
+<script>
+document.querySelectorAll('.timeline-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('.timeline-dot').forEach(d => d.classList.remove('active-dot'));
+    dot.classList.add('active-dot');
+  });
+});
+</script>
+</body>
 </html>
