@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>The Map of Draugha</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<!-- External Styles and Leaflet CSS -->
+<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+<!-- Page Styles -->
+
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+#timeline {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  max-width: 100%;
+  background: #111;
+  z-index: 10000;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  white-space: nowrap;
+  padding: 5px 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.timeline-dot {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 4px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 2px solid #aaa;
+  touch-action: manipulation;
+}
+.timeline-dot:hover {
+  background: #ff4747;
+  transform: scale(1.2);
+}
+
+#eventInfoBox {
+  position: fixed;
+  bottom: 110px;
+  left: 1rem;
+  right: 1rem;
+  max-width: calc(100% - 2rem);
+  background-color: rgba(20, 20, 20, 0.95);
+  color: white;
+  padding: 15px;
+  font-size: 14px;
+  border-radius: 8px;
+  z-index: 10001;
+  display: none;
+  text-align: left;
+  transform: none;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#eventBoxInner {
+  transform: scale(0.95);
+  transform-origin: center top;
+  width: 100%;
+}
+
+#eventTitle {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+}
+
+#overlayImage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+#zirkImage {
+  max-width: 90%;
+  max-height: 90%;
+  border: 4px solid white;
+  box-shadow: 0 0 20px black;
+}
+
+#overlayImage button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  font-size: 16px;
+  z-index: 10001;
+}
+
+#mapToggleBtn {
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+@media (max-width: 768px) {
+  #timeline {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    margin: 2px;
+  }
+
+  #eventInfoBox {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  #overlayImage button {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Zirkharak Overlay Map -->
+<div id="overlayImage">
+<img id="zirkImage" src="images/zirkharak.png"/>
+<button onclick="hideOverlay()">Close</button>
+</div>
+<!-- Toggle Button -->
+<div style="position: absolute; top: 30px; left: 50px; z-index: 0;">
+<button id="mapToggleBtn">To the Undergrowth</button>
+</div>
+<!-- Main Map Container -->
+<div id="map"></div>
+<!-- External Libraries -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // === Map Initialization ===
+  const mapWidth = 5100, mapHeight = 3300;
+
+  const map = L.map('map', {
+    crs: L.CRS.Simple,
+    minZoom: 0,
+    maxZoom: 1.5,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+  });
+
+  const bounds = [[0, 0], [mapHeight, mapWidth]];
+  map.fitBounds(bounds);
+  map.setMaxBounds(bounds);
+
+  // === Image Overlays for Surface & Underdark Maps ===
+  const surfaceMap = L.imageOverlay('images/theobbymap.png', bounds);
+  const underdarkMap = L.imageOverlay('images/underdark.png', bounds);
+  surfaceMap.addTo(map); // Add surface map initially
+
+  // === Map Toggle Logic ===
+  let currentMap = 'surface';
+  const toggleBtn = document.getElementById('mapToggleBtn');
+
+  toggleBtn.addEventListener('click', () => {
+    if (currentMap === 'surface') {
+      map.removeLayer(surfaceMap);
+      map.removeLayer(surfaceMarkers);
+      map.addLayer(underdarkMap);
+      toggleBtn.textContent = 'To the Surface World';
+      currentMap = 'underdark';
+    } else {
+      map.removeLayer(underdarkMap);
+      map.addLayer(surfaceMap);
+      map.addLayer(surfaceMarkers);
+      toggleBtn.textContent = 'To the Undergrowth';
+      currentMap = 'surface';
+    }
+  });
+
+  // === Icon Factory Function ===
+  function createIcon(url, size = [40, 40], anchor = [20, 20], popupAnchor = [0, 0]) {
+    return L.icon({ iconUrl: url, iconSize: size, iconAnchor: anchor, popupAnchor: popupAnchor });
+  }
+
+  // === Icon Definitions ===
+  const icons = {
+    forest: createIcon('images/icons/forest.png'),
+    dungeon: createIcon('images/icons/dungeon.png', [30, 30], [10, 10], [5, 5]),
+    hive: createIcon('images/icons/hive.png'),
+    tribe: createIcon('images/icons/tribal.png'),
+    sahradan: createIcon('images/icons/sahradan.png'),
+    sangratir: createIcon('images/icons/sangratir.png'),
+    thulgaan: createIcon('images/icons/thulgaan.png'),
+    circle: createIcon('images/icons/dot.png', [20, 20], [10, 10]),
+    vihara: createIcon('images/icons/citystate.png'),
+    shrine: createIcon('images/icons/shrine.png'),
+    monument: createIcon('images/icons/monument.png', [30, 30], [15, 15])
+  };
+
+  // === Surface Markers ===
+  const surfaceMarkers = L.layerGroup().addTo(map);
+
+  // Helper to add markers quickly
+  function addMarker(coords, icon, popupHtml) {
+    L.marker(coords, { icon: icon }).addTo(surfaceMarkers).bindPopup(popupHtml);
+  }
+  // === Thulgaan Tsardom ===
+addMarker([2765, 2210], icons.monument, 'Tuskline of Drokhaal');
+addMarker([3050, 1645], icons.dungeon, 'Fallsteps of Ghoram');
+addMarker([2950, 1715], icons.thulgaan, 'Whitehorn Bastion');
+addMarker([2660, 2140], icons.circle, 'Wyrd Kettle of Thrumgak');
+addMarker([2865, 2100], icons.dungeon, 'Sleeptusk Barrow');
+addMarker([3025, 2100], icons.forest, 'Nalurra’s Rest');
+addMarker([2900, 2035], icons.shrine, 'Korrulvarn');
+addMarker([3000, 1830], icons.thulgaan, 'Vaskerrad');
+addMarker([2750, 2315], icons.dungeon, 'Brelskarn, the Wind-Severed Hall');
+addMarker([2515, 2070], icons.thulgaan, 'Oramahk, the Ivory Throne');
+addMarker([2730, 1830], icons.monument, 'Lightbringer of Thunnvaak');
+addMarker([2795, 1915], icons.thulgaan, 'Varrkund');
+
+  // === Kharak ===
+  addMarker([1910, 1700], icons.dungeon, 'Fellfang Keep');
+  addMarker([1760, 1760], icons.vihara, '<div style="text-align:center;"><strong>Zirkharak</strong><br><button onclick=\'showOverlay()\'>Open Map</button></div>');
+  addMarker([1465, 1130], icons.sahradan, 'Saltfang Ridge');
+  addMarker([2345, 1830], icons.circle, 'Lake al-Sijjin');
+  addMarker([2165, 1675], icons.circle, 'Lake al-Khamous');
+  addMarker([2220, 1510], icons.circle, 'Lake al-Ruh');
+  addMarker([2200, 1360], icons.circle, 'Lake al-Dukhkhan');
+  addMarker([2140, 1150], icons.shrine, 'Dalmarhan\'s Shrine');
+  addMarker([2300, 1740], icons.sangratir, '<div style="text-align:center;"> <strong>Skeethvelok</strong><br> <img src="images/sangratir.png" alt="Skeethvelok" width="160" /></div>');
+  addMarker([2105, 1760], icons.hive, '<div style="text-align:center;"> <strong>Hive Chasmkreth</strong><br> <img src="images/grasshopppers.png" alt="Hive Chasmkreth" width="160" /></div>');
+    addMarker([2500, 1855], icons.thulgaan, '<div style="text-align:center;"> <strong>Yorbrakan</strong><br> <img src="images/Yorbrakan.png" alt="Yorbrakan" width="160" /></div>');
+  addMarker([1915, 1595], icons.shrine, 'Sanctuary of the Cindered Prophet');
+  addMarker([2330, 1620], icons.dungeon, 'Temple al-Sukut');
+  addMarker([1715, 1455], icons.dungeon, 'Tomb of Flame');
+  addMarker([1380, 1715], icons.dungeon, 'City al-Thuluj');
+  addMarker([2330, 1420], icons.forest, 'Sordrakan Grove');
+  addMarker([1585, 1840], icons.tribe, 'Camp al-Naab');
+  addMarker([2025, 1520], icons.tribe, 'Khanat al-Jilid');
+
+  // === Eastern Mainland ===
+  addMarker([1045, 3750], icons.dungeon, 'Temple of the Awakened Flame');
+  addMarker([920, 3650], icons.forest, 'Charbone Forest');
+  addMarker([980, 3535], icons.monument, 'Obsidian Stair');
+  addMarker([1125, 3705], icons.dungeon, 'Bleeding Grotto');
+  addMarker([880, 3765], icons.tribe, 'Cragmarsh Village');
+  addMarker([1250, 2340], icons.vihara, 'Raqash');
+  addMarker([900, 2830], icons.vihara, '<div style="text-align:center;"> <strong>Vul-Kesh</strong><br> <img src="images/vulkesh.png" alt="Vul-Kesh" width="160" /></div>');
+  addMarker([1900, 2980], icons.hive, 'Hive of the Forgotten Ones');
+
+  // === Sahradan Homeland ===
+  addMarker([605, 3052], icons.sahradan, '<div style="text-align:center;"> <strong>Rotten Den</strong><br> <img src="images/rottingden.png" alt="Rotten Den" width="160" /></div>');
+  addMarker([390, 3190], icons.monument, 'Azumbe Stones');
+  addMarker([455, 3400], icons.circle, 'Nymaba Pools');
+  addMarker([730, 2925], icons.shrine, 'Mount Yubura Sanctuary');
+  addMarker([625, 2680], icons.shrine, 'Cloudsong Overlook');
+  addMarker([965, 2185], icons.forest, 'Kwesongas Whisper');
+  addMarker([930, 2340], icons.dungeon, 'Chimbuka Hollow');
+  addMarker([620, 2180], icons.dungeon, 'Ruins of Kulugwe');
+  addMarker([345, 3440], icons.dungeon, 'Womola Tree');
+  addMarker([560, 2810], icons.sahradan, 'Mosscrown Den');
+  addMarker([350, 3320], icons.sahradan, 'Mbaleko Den');
+  addMarker([430, 2740], icons.sahradan, 'Kiloko Den');
+  addMarker([425, 2875], icons.circle, 'Lake Okamva');
+
+  // === Click Handler for Coordinate Logging ===
+  map.on('click', function(e) {
+    const x = e.latlng.lng.toFixed(2);
+    const y = e.latlng.lat.toFixed(2);
+    console.log(`Clicked at: x=${x}, y=${y}`);
+  });
+
+  // === Overlay Control Functions ===
+  function showOverlay() {
+    document.getElementById("overlayImage").style.display = "flex";
+  }
+  function hideOverlay() {
+    document.getElementById("overlayImage").style.display = "none";
+  }
+</script>
+<div id="timeline">
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The First Era: Stillness Before', `There are whispers of when the wind stood still,
+Of frost-wrapped stars on a breathless hill.
+No voice, no flame, no waking cry,
+Just silence stretched across the sky.
+Some say the gods were lost in sleep,
+Buried deep where memories creep.
+Others claim the world was whole,
+Before it cracked like a fire-cursed soul.
+The One Beneath, in cold command,
+Was it god, or grave, or land?
+None dare name what once held sway,
+When all was ice, and night, and grey.`);" title="The First Era: The Stillness Before">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Second Era: The Choking Ash', `Something burned; perhaps a mountain's maw,  
+Perhaps a god, unhinged by law.  
+Perhaps it was the mortal hand  
+That struck the spark and scarred the land.
+
+Smoke swallowed stars. The skies turned red.  
+The beasts grew bold. The winds grew dread.  
+And in the dark, the dead drew breath,  
+Their voices shaped from ash and death.
+
+The world did not end. It did not stay.  
+It changed in ways none dare to say.
+
+Some whisper this is when Maw first stirred,  
+Or perhaps...it always hungered, unheard.`);" title="The Second Era: The Choking Ash">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1650, 1795]); showEventInfo('The God That Ate Time', 'In the Pale Expanse, the twin suns hung like butchered eyes. Unmoving. Unblinking. Some say it lasted a single moon. Others swear it was a hundred winters.\nSundials split. Water sat in the pot and would not boil. Newborns screamed with no name to quiet them.\n\nThe Hollow Prophets call it a sacred hunger. They believe the Sleepless Maw ate time to stop a worse fate from waking.\n\nDuring that stillness, cold fires began to whisper. They promised heat, but always asked for something in return. Blood. Bone. Breath.\n\nWhen the suns crept forward again, no one remembered it the same.\nSome carried memories that were not their own. A few walked with two names in their mouths.'); }" title="The God That Ate Time"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([3050, 1645]); showEventInfo('The Binding Below', 'The Oramahk still whisper it. Frostbitten hermits croak it through cracked teeth. Beneath the Boreal Icefalls, an oath was broken. Not by man. By the god who swore it.\n\nThe One Beneath the Ice once waited forever. Then it stirred. Not to speak. Not to rise. Only to become something else.\n\nWhat watches now is colder. It wears no name. The old runes do not match the stars.\n\nThose who still carve them freeze where they stand.\nThey do not die. They dream.\nAnd the things they dream should have stayed buried in the ice.'); }" title="The Binding Below"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([2400, 2020]); showEventInfo('The Smoke March', 'They came wrapped in ash, dragging flame behind them. Fire-cultists marching north to burn warmth into the bones of a frozen land.\n\nThey hauled pyres on their backs. They sang heat into the dead, thinking flame was mercy. Conquest, they said, was kindness.\n\nThe volcano walked with them. When they neared Oramahk, the Ivory Throne, the sea split open and swallowed them whole.\n\nSome say the Maw spit them out. Others say the ice never remembers.\n\nWhatever truth there was, the land burned hot for a while. Draugha remembers the warmth and the scars it left behind.', 'images/smokemarch.png'); }" title="The Smoke March"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Third Era: The Long Walk', `The tribes took to tread, not to seek but to flee.  
+From what, none knew. Not land. Not sea.  
+Some chased the thaw where ice withdrew,  
+Some walked the ash where fire flew.
+
+Some dreamt of songs and slipped through stone,  
+Their names now wind, their paths unknown.  
+Others carved their gods in skin,  
+And bled until the voice spoke in.
+
+Each claims their line from sacred tread,  
+Yet none agree what path they led.  
+And who came first? None dare to say...  
+The gods, like them, just walked away.`);" title="The Third Era: The Long Walk">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([2515, 2070]); showEventInfo('The Shatterwake Exodus', 'When the frost pulled back in the far north, the Thulgaan clans came down from the glacial heights. But they were not the only ones stirring.\n\nBeneath the ice, something else moved.\nVoices swam in frozen rivers.\nOld beasts clawed through memory.\nWhole villages walked without breath.\n\nFear spread like smoke. Some called themselves ashwalkers and claimed the ice was not dying, only dreaming.\n\nMany ran too far, leaving behind shrines and bones that would never be found again.\n\nSome say this was when the Oramahk made their last vow.\nTo move no more.\nTo vanish into stillness.'); }" title="The Shatterwake Exodus"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1650, 1795]); showEventInfo('Dreams of a Split Sky', 'In the Pale Expanse, an entire generation of nomads woke to a sky with no stars.\nEach had dreamed the same thing.\n\nA black tree.\nRoots burning.\nFruit that wept ash.\n\nEvery tribe saw a different truth. Some followed the vision into the earth. Others carved new gods into their flesh. Some drew blades in the name of what they saw.\n\nThat dream marked the first time the Draughan listened to gods.\nIt was the beginning of godbearing.\n\nThey say the tree still exists, somewhere in the deep stone below.\nNo one knows where it stood.\nBut its shape matches the old carvings of Sarkesh.'); }" title="Dreams of a Split Sky"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1910, 1700]); showEventInfo('Siege of Fellfang Keep', 'The Steppe Jackals crawled into Fellfang Keep, hoping to raise their bloodline from frost and ruin.\nThe Pale Expanse swallowed them. So did the Raqashi.\n\nFor eighteen nights, warbands circled the walls.\nEach night, a new gate broke.\nEach morning, the ice sealed it shut again.\n\nOn the final night, an unknowing Pale Lantern bearer walked through alone.\nNo armor. No blade.\n\nCome dawn, the fortress stood silent. Empty.\n\nOne word was left behind, carved into the frost where the gate had been:\nEnough.'); }" title="Siege of Fellfang Keep"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1655, 2080]); showEventInfo('Covenant of Fire and Bone', 'This was the first true godbearing.\nNot prayer. Not vision.\nBut flesh carved with runes and will burned by the divine.\n\nSomewhere west of Raqash a gathering took place. Godbearers in waiting. Runescribes with bloodied hands.\nTogether they forged the first marks.\n\nTattoos that cut themselves into the skin and would not fade.\nNot with age.\nNot with fire.\nNot with death.\n\nThey thought the marks would bind truth. Chain gods to law. Stop the world from forgetting again.\n\nAnd for a while, they were right.\n\nFrom that moment on, faith changed.\nIt wasn’t worship anymore.\nIt was contract.\n\nWhole generations carved their gods into their bodies. Not for power.\nJust to be seen.', 'images/covenantfirebone.png'); }" title="Covenant of Fire and Bone"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Fourth Era: The Godbearing Years', `Then came the marks; brands, burns, and bone,  
+Power passed through flesh alone.  
+Runes were writ in blood and flame,  
+And every scar was given name.
+
+Some say the first great city stood,  
+Built not of stone, but pact and blood.  
+Others tell of forts that walked,  
+Of vine-choked halls where ghosts still talked.
+
+Some cheered in pits where kin were slain,  
+Some vanished in the root's domain.
+
+No truth was shared, no word agreed,  
+But all could feel something would bleed.`);" title="The Fourth Era: The Godbearing Years">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1250, 2340]); showEventInfo('Thirteenth Brand', 'No one is meant to carry more than twelve oaths.\nMore, and the soul cracks. Or burns. Or worse.\n\nBut once, in the bloodied sands of Raqash, a gladiator carved a thirteenth rune mid-fight.\nHis skin split.\nTwo forms rose from the ruin.\nBoth alive. Both divine.\n\nOne fled into the Pale Expanse.\nThe other took command of a nameless cult, and still rules it in shadow.\n\nNow, those who chase too many blessings are called Unspooled.\nThey are marked.\nAnd they are watched.'); }" title="Thirteenth Brand"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Singing Still', 'Long ago, though time in Draugha resists measure, there was a moment when no prayers were answered, and all divine signs ceased. This silence lasted only three days… but it was enough. The Choir-Keepers call it the Singing Still, for they claim the stars hummed in mourning.\n\nIt is believed that one of the gods died during this event, or was devoured.\n\nBut which? No one agrees. Some say a new god filled the gap. Others say that void still lives beneath the ice.');" title="The Singing Still"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('Trifold Divinity', 'There is an old campfire tale told across cultures about a valley where all three divine lines converged. Ice, fire, and root; meeting under one stone sky.\n\nNo map shows it. No survivor can agree on where it was. But all say something emerged from it.\n\nIt spoke only once, in a tongue that cracked bone it was so harsh.\n\nNow, those who get too close to such convergence points hear echoes, not of gods, but of something watching the gods.');" title="Trifold Divinity"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Great Scarring', 'Conflict born of broken divine pacts. Entire villages turned against each other for interpreting a god’s silence differently. Some Godbearers claimed their gods had changed form, others insisted they had gone to sleep, thus, they were no longer bound to them. Battles were fought not for land, but for the right to speak a god’s name aloud, and those who lost were ritually silenced with ash and runecarving.\n\nAs the wars waged on, runic bindings stopped working. Skin-carved oaths faded. Bone weavings collapsed to ash without use. Entire cities built on divine compacts found themselves mute, powerless, or cursed with false visions. Godbearers woke to find their pacts had vanished. Some died immediately. Others kept breathing, but were no longer fully there.\n\nThe cause remains unknown. Some claim a god was killed, devoured, or reborn. Others whisper that the gods themselves turned away, disgusted by the way mortals traded their names like currency.', 'images/thegreatscarring.png');" title="The Great Scarring"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Fifth Era: The Forever Fog', `No tale survives of what came then...  
+Only that something left again.  
+Or was it lost? Or locked? Or slain?  
+None ask twice. None speak the name.
+
+The stars grew dim. The songs grew strange.  
+The winds forgot their mountain range.  
+The gods fell silent... then they screamed,  
+In tongues no child has ever dreamed.`);" title="The Fifth Era: The Forever Fog">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1380, 1715]); showEventInfo('Crooked Roots', `The port City al-Thuluj was said to be impervious, its walls layered in stone, its people untouched by frost or flame.  
+  
+Until a seed was found. Small. Black. Still warm. No one planted it, yet within days the stone cracked. Vines grew through homes, eyes, even dreams.  
+  
+The Ygrahn say this was the Root That Strangles claiming what was promised. Others believe it was punishment for forgetting old oaths. No one who lived in City al-Thuluj remains, and no one will map where it once stood.  
+  
+But the vines there still whisper in tongues no mouth has shaped.`); }" title="Crooked Roots"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([345, 3440]); showEventInfo('The Lantern Bloom', `In the southern redwoods, a corpse orchard grew—trees that bloomed only in death, their fruit glowing pale like the moon.\n\nNo one planted them. They grew around a battlefield where no survivors were left to speak of the war. At night, the trees emit soft chimes, like wind in old bones.\n\nThose who eat the fruit dream of The Pale Lantern, and return with knowledge they should not have. Some begin to glow. Others vanish. A few begin speaking in voices not their own.\n\nThe lantern bloom still grows. Some cults guard it. Others fear it will bloom again.`); }" title="The Lantern Bloom"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('Sundering of Sarkesh', 'The Ygrahn planted a living god-seed deep in the undergrowth around Sarkesh to bind the Root That Strangles to the mortal world. The seed took and within days, the jungle ruptured into sentient overgrowth, devouring Tarszik Hives and replaying ancient wars in bark, blood, and bloom. The land itself seemed to remember as ruins and screams that had long since faded from history lived again in service of the Roots. The gods fell silent, unable or unwilling to stop what was growing...until now.');" title="Sundering of Sarkesh"></div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The Sixth Era: The Now Unfolding', `This is the age of scattered things,  
+Of hollow thrones and broken rings.  
+Old roads curl into ash and mist,  
+And gods now bicker, claw, and twist.
+
+The people move. They do not stay.  
+The sky forgets. The roots betray.  
+There are ruins too new to rot,  
+And scripts that living hands wrote not.
+
+Bone-altars drip with blood still warm...  
+No tracks, no sign, no beast, no swarm.
+
+Those who dig may never return.  
+Those who do bring back what burns.  
+So most agree, with breath held tight:  
+Keep walking. Don’t look left or right.`);" title="The Sixth Era: The Now Unfolding">
+</div>
+<div class="timeline-dot" onclick="if (currentMap === 'surface') { map.panTo([1945, 1675]); showEventInfo('Ash Wake at Drazhthunek', `When the Obsidian Order attempted to seize a scorchwell beneath the Drazhthunek mountains, continents away from any volcanic source, they brought with them masked soldiers, fire-wardens, and a battalion of hollow priests.  
+  
+But the Ygrahn were waiting. The conifers swallowed the first assault. Roots bloomed from blood, and vines dragged screaming soldiers into crevices that hadn’t existed the day before. The second wave used fire. They burned the trees, and with it, the scorchwell. It is said that both gods, the Root and the Maw, took offense.  
+  
+Three nights later, ash fell in the Pale Expanse like snow. Every magistrate who authorized the war coughed up seedlings while they slept comfortably in Vul-Kesh, half way across the world.`, 'images/ashwake.png'); }" title="Ash Wake at Drazhthunek">
+</div>
+</div>
+<script>
+  map.setView([1910, 1700], map.getZoom());
+}</script>
+<div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%;"><strong id="eventTitle"></strong><button onclick="hideEventInfo()" style="background: none; border: none; color: white; font-size: 16px;">✖</button></div><div id="eventBoxInner"><div id="eventDescription"></div><img id="eventImage" style="display:none; margin-top:10px; max-width:100%; border: 2px solid white; box-shadow: 0 0 10px black;"/></div></div>
+<script>
+function showEventInfo(title, description, imageUrl = null) {
+  document.getElementById("eventTitle").innerText = title;
+  document.getElementById("eventDescription").innerHTML = description;
+
+  const eventImage = document.getElementById("eventImage");
+  if (imageUrl) {
+    eventImage.src = imageUrl;
+    eventImage.style.display = "block";
+  } else {
+    eventImage.style.display = "none";
+  }
+
+  document.getElementById("eventInfoBox").style.display = "block";
+}
+
+function hideEventInfo() {
+  document.getElementById("eventInfoBox").style.display = "none";
+}
+</script></body>
+</html>
