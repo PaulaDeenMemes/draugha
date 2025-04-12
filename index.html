@@ -33,7 +33,47 @@
       font-size: 16px;
       z-index: 10001;
     }
-  </style>
+  
+@media (max-width: 768px) {
+  #timeline {
+    height: auto;
+    padding: 5px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .timeline-dot {
+  touch-action: manipulation;
+    width: 14px;
+    height: 14px;
+    margin: 4px;
+  }
+
+  #eventInfoBox {
+    bottom: 130px;
+    width: 90vw;
+    font-size: 13px;
+    padding: 10px;
+    max-width: none;
+  }
+
+  #eventInfoBox img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  #mapToggleBtn {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  #overlayImage button {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+}
+
+</style>
 <style>
 #timeline::-webkit-scrollbar {
   height: 6px;
@@ -57,6 +97,7 @@
 }
 </style><style>
 .timeline-dot {
+  touch-action: manipulation;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -227,7 +268,7 @@ addMarker([2795, 1915], icons.thulgaan, 'Varrkund');
     document.getElementById("overlayImage").style.display = "none";
   }
 </script>
-<div id="timeline" style="position:fixed; bottom:0; left:0; right:0; height:40px; background:#111; overflow-x:auto; z-index:10000; display:flex; justify-content:center; align-items:center; padding:0 10px;">
+<div id="timeline" style="position:fixed; bottom:0; left:0; right:0; min-height:40px; background:#111; overflow-x:auto; z-index:10000; display:flex; justify-content:center; align-items:center; padding:5px 10px; flex-wrap:wrap;">
 <div class="timeline-dot" onclick="if (currentMap === 'surface') showEventInfo('The First Era: Stillness Before', `There are whispers of when the wind stood still,
 Of frost-wrapped stars on a breathless hill.
 No voice, no flame, no waking cry,
