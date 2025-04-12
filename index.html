@@ -37,7 +37,6 @@ html, body {
   left: 0;
   right: 0;
   width: 100vw;
-  max-width: 100%;
   background: #111;
   z-index: 10010;
   display: flex;
@@ -52,8 +51,6 @@ html, body {
 }
 
 .timeline-dot {
-  display: inline-block;
-  flex: 0 0 auto;
   width: 12px;
   height: 12px;
   aspect-ratio: 1 / 1;
@@ -79,10 +76,8 @@ html, body {
   font-size: clamp(14px, 2vw, 16px);
   border-radius: 8px;
   z-index: 10001;
-  display: block; /* Temporarily show it */
-  text-align: left;;
-  overflow: hidden;;
-  height: auto;
+  text-align: left;
+  overflow: hidden;
 }
 
 #eventTitle {
@@ -92,7 +87,6 @@ html, body {
 }
 
 #eventImage {
-  display: block;
   margin: 10px auto 0 auto;
   max-width: 900px;
   max-height: 25vh;
@@ -412,9 +406,6 @@ But the Ygrahn were waiting. The conifers swallowed the first assault. Roots blo
 Three nights later, ash fell in the Pale Expanse like snow. Every magistrate who authorized the war coughed up seedlings while they slept comfortably in Vul-Kesh, half way across the world.`, 'images/ashwake.png'); }" title="Ash Wake at Drazhthunek">
 </div>
 </div>
-<script>
-  map.setView([1910, 1700], map.getZoom());
-}</script>
 <div id="eventInfoBox" style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background-color: rgba(20, 20, 20, 0.95); color: white; padding: 15px; font-size: 14px; border-radius: 8px; z-index: 10001; display: none; max-width: 600px; text-align: center;">
 <div style="display: flex; justify-content: space-between; align-items: center;">
 <strong id="eventTitle">Event Title</strong>
@@ -441,6 +432,11 @@ function showEventInfo(title, description, imageUrl = null) {
 
 function hideEventInfo() {
   document.getElementById("eventInfoBox").style.display = "none";
+
+  // Remove 'active-dot' class from all timeline dots
+  document.querySelectorAll(".timeline-dot").forEach(dot => {
+    dot.classList.remove("active-dot");
+  });
 }
 </script>
 <script>
