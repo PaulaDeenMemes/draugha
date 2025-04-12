@@ -73,9 +73,6 @@ html, body {
 
 #eventInfoBox {
   position: relative;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
   background-color: rgba(20, 20, 20, 0.95);
   color: white;
   padding: 15px;
@@ -83,33 +80,9 @@ html, body {
   border-radius: 8px;
   z-index: 10001;
   display: block; /* Temporarily show it */
-  text-align: left;
-  max-width: 600px;
-  overflow: hidden;
-  max-height: max-content;
+  text-align: left;;
+  overflow: hidden;;
   height: auto;
-}
-
-/* Event Info Box – Desktop */
-@media (min-width: 768px) {
-  #eventInfoBox {
-    max-width: 900px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-}
-
-/* Event Info Box – Mobile */
-@media (max-width: 768px) {
-  #eventInfoBox {
-    width: calc(100vw - 2rem);
-  }
-}
-
-/* Event Content Styling */
-#eventDescription {
-  white-space: pre-wrap;
 }
 
 #eventTitle {
