@@ -2,19 +2,19 @@
 <!--Tab Title-->
 <title>Thulgaar, the Northern March</title>
 <!--Tab Icon-->
-<link rel="icon" href="/images/icons/icon.png">
+<link rel="icon" href="images/icons/icon.png">
 <!--Leaflet for the Map-->
-<link rel="stylesheet" href="/leaflet/leaflet.css" />
+<link rel="stylesheet" href="leaflet/leaflet.css" />
 <style>html, body, #map { height: 100%; margin: 0; background-color: #727181 }</style>
-<script src="/leaflet/leaflet.js"></script>
+<script src="leaflet/leaflet.js"></script>
 </head>
 <body>
 <!--The Map-->
 <div id="map"></div>
 <script>
     
-    const IMG_A = '/images/northernmarch.png';
-    const IMG_B = '/images/northernmarchhex.png';
+    const IMG_A = 'images/northernmarch.png';
+    const IMG_B = 'images/northernmarchhex.png';
     const imageWidth = 5760;
     const imageHeight = 3240;
 
@@ -31,17 +31,17 @@
     }
 
     const icons = {
-      forest: createIcon('/images/icons/forest.png'),
-      dungeon: createIcon('/images/icons/dungeon.png', [30,30],[10,10],[5,5]),
-      hive: createIcon('/images/icons/hive.png'),
-      tribe: createIcon('/images/icons/tribal.png'),
-      sahradan: createIcon('/images/icons/sahradan.png'),
-      sangratir: createIcon('/images/icons/sangratir.png'),
-      thulgaan: createIcon('/images/icons/thulgaan.png'),
-      circle: createIcon('/images/icons/dot.png',[20,20],[10,10]),
-      vihara: createIcon('/images/icons/citystate.png'),
-      shrine: createIcon('/images/icons/shrine.png'),
-      monument: createIcon('/images/icons/monument.png',[30,30],[15,15])
+      forest: createIcon('images/icons/forest.png'),
+      dungeon: createIcon('images/icons/dungeon.png', [30,30],[10,10],[5,5]),
+      hive: createIcon('images/icons/hive.png'),
+      tribe: createIcon('images/icons/tribal.png'),
+      sahradan: createIcon('images/icons/sahradan.png'),
+      sangratir: createIcon('images/icons/sangratir.png'),
+      thulgaan: createIcon('images/icons/thulgaan.png'),
+      circle: createIcon('images/icons/dot.png',[20,20],[10,10]),
+      vihara: createIcon('images/icons/citystate.png'),
+      shrine: createIcon('images/icons/shrine.png'),
+      monument: createIcon('images/icons/monument.png',[30,30],[15,15])
     };
     // Add New Markers Here
      L.marker([810, 3190], { icon: icons.thulgaan }).addTo(map).bindPopup('Oramahk, the Ivory Throne');
